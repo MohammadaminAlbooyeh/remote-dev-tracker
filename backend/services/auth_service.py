@@ -12,6 +12,9 @@ class AuthService:
         self.db = db
 
     def register(self, payload):
+        existing = self.db.query(User).filter(User.email == payload.email).first()
+        if existing:
+            raise ValueError("Email already registered")
         hashed = pwd_context.hash(payload.password)
         user = User(
             name=payload.name,
@@ -43,8 +46,14 @@ class AuthService:
         except JWTError:
             return None
 
-    def get_all_developers(self):
-        return self.db.query(User).all()
+    def get_all_developers(self, skip: int = 0, limit: int = 100):
+        return (
+            self.db.query(User)
+            .filter(User.role == "dev")
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
 
     def update_profile(self, user_id: str, payload: dict):
         user = self.db.query(User).filter(User.id == user_id).first()

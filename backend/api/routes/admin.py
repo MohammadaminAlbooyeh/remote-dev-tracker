@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from backend.api.schemas import UserCreate, UserResponse
 from backend.api.dependencies import get_admin_user
 from backend.models.database import get_db
@@ -11,9 +11,13 @@ router = APIRouter(dependencies=[Depends(get_admin_user)])
 
 
 @router.get("/developers", response_model=list[UserResponse])
-def list_developers(db=Depends(get_db)):
+def list_developers(
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=500),
+    db=Depends(get_db),
+):
     service = AuthService(db)
-    return service.get_all_developers()
+    return service.get_all_developers(skip, limit)
 
 
 @router.post("/developers", response_model=UserResponse)
@@ -39,9 +43,13 @@ def deactivate_developer(dev_id: str, db=Depends(get_db)):
 
 
 @router.get("/sessions")
-def all_sessions(db=Depends(get_db)):
+def all_sessions(
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=500),
+    db=Depends(get_db),
+):
     service = ReportService(db)
-    return service.get_all_sessions()
+    return service.get_all_sessions(skip, limit)
 
 
 @router.get("/summary")

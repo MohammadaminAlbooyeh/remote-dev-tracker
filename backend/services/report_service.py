@@ -8,6 +8,8 @@ class ReportService:
         self.db = db
 
     def _query_sessions(self, developer_id, start, end):
+        start = start.replace(tzinfo=None)
+        end = end.replace(tzinfo=None)
         return (
             self.db.query(Session)
             .filter(
@@ -45,8 +47,14 @@ class ReportService:
         sessions = self._query_sessions(developer_id, start, end)
         return self._build_report(sessions)
 
-    def get_all_sessions(self):
-        return self.db.query(Session).order_by(Session.start_time.desc()).all()
+    def get_all_sessions(self, skip: int = 0, limit: int = 100):
+        return (
+            self.db.query(Session)
+            .order_by(Session.start_time.desc())
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
 
     def get_global_summary(self):
         sessions = self.db.query(Session).filter(Session.status == "completed").all()

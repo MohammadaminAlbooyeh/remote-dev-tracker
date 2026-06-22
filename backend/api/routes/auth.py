@@ -10,14 +10,20 @@ router = APIRouter()
 @router.post("/register", response_model=UserResponse)
 def register(payload: UserCreate, db=Depends(get_db)):
     service = AuthService(db)
-    user = service.register(payload)
+    try:
+        user = service.register(payload)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     return user
 
 
 @router.post("/login", response_model=TokenResponse)
 def login(payload: UserLogin, db=Depends(get_db)):
     service = AuthService(db)
-    token = service.login(payload)
+    try:
+        token = service.login(payload)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
     return token
 
 

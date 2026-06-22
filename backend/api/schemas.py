@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional
 from datetime import datetime
 
@@ -27,9 +27,15 @@ class UserResponse(BaseModel):
     role: str
     hourly_rate: float
     is_active: bool
+    is_online: bool = False
 
     class Config:
         from_attributes = True
+
+
+class UserUpdate(BaseModel):
+    name: Optional[str] = None
+    hourly_rate: Optional[float] = None
 
 
 class SessionResponse(BaseModel):

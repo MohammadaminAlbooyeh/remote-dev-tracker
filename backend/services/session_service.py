@@ -1,7 +1,7 @@
 from backend.models.session import Session
 from backend.models.user import User
 from backend.services.payment_service import calculate_session_payment
-from backend.utils.timezone import now_cet
+from backend.utils.timezone import now_cet, to_cet
 
 
 class SessionService:
@@ -28,7 +28,8 @@ class SessionService:
             raise ValueError("No active session")
         user = self.db.query(User).filter(User.id == developer_id).first()
         end_time = now_cet()
-        payment = calculate_session_payment(session.start_time, end_time, float(user.hourly_rate))
+        start_time = to_cet(session.start_time)
+        payment = calculate_session_payment(start_time, end_time, float(user.hourly_rate))
         session.end_time = end_time
         session.duration = payment["duration_hours"]
         session.amount = payment["amount"]
@@ -38,11 +39,13 @@ class SessionService:
         self.db.refresh(session)
         return session
 
-    def get_user_sessions(self, developer_id: str):
+    def get_user_sessions(self, developer_id: str, skip: int = 0, limit: int = 100):
         return (
             self.db.query(Session)
             .filter(Session.developer_id == developer_id)
             .order_by(Session.start_time.desc())
+            .offset(skip)
+            .limit(limit)
             .all()
         )
 

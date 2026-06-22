@@ -14,5 +14,6 @@ class User(Base):
     role = Column(String(10), default="dev")
     hourly_rate = Column(Numeric(10, 2), nullable=False)
     is_active = Column(Boolean, default=True)
+    is_online = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
