@@ -1,7 +1,7 @@
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import api from "../services/api";
 
-export function useAPI(url, method = "get") {
+export function useAPI(url, method = "get", autoFetch = false) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -23,6 +23,14 @@ export function useAPI(url, method = "get") {
     },
     [url, method]
   );
+
+  useEffect(() => {
+    if (autoFetch) {
+      const token = localStorage.getItem("token");
+      if (token) execute().catch(() => {});
+      else setLoading(false);
+    }
+  }, [autoFetch]);
 
   return { data, loading, error, execute };
 }

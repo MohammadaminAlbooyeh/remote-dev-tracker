@@ -1,9 +1,21 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from backend.services.auth_service import AuthService
 from backend.models.database import get_db
 
-security = HTTPBearer()
+
+class HTTPBearer401(HTTPBearer):
+    async def __call__(self, request: Request) -> HTTPAuthorizationCredentials | None:
+        try:
+            return await super().__call__(request)
+        except HTTPException:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Not authenticated",
+            )
+
+
+security = HTTPBearer401()
 
 
 def get_current_user(

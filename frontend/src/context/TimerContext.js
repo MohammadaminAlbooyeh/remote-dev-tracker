@@ -9,6 +9,8 @@ export function TimerProvider({ children }) {
   const [activeSession, setActiveSession] = useState(null);
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
     sessionApi
       .active()
       .then((res) => {

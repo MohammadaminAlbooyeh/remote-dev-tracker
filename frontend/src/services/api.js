@@ -24,4 +24,8 @@ api.interceptors.response.use(
   }
 );
 
+export function isAuthError(err) {
+  return err.response?.status === 401 || err.response?.status === 403;
+}
+
 export default api;

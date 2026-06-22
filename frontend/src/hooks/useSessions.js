@@ -6,9 +6,15 @@ export function useSessions() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setLoading(false);
+      return;
+    }
     sessionApi
       .list()
       .then((res) => setSessions(res.data))
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 

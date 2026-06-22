@@ -6,6 +6,7 @@ export const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -21,10 +22,18 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (email, password) => {
-    const res = await authApi.login(email, password);
-    localStorage.setItem("token", res.data.access_token);
-    const meRes = await authApi.me();
-    setUser(meRes.data);
+    setError(null);
+    try {
+      const res = await authApi.login(email, password);
+      localStorage.setItem("token", res.data.access_token);
+      const meRes = await authApi.me();
+      setUser(meRes.data);
+    } catch (err) {
+      const msg =
+        err.response?.data?.detail || err.response?.data?.message || "Login failed. Please check your credentials.";
+      setError(msg);
+      throw err;
+    }
   };
 
   const logout = () => {
@@ -33,7 +42,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, error, login, logout, setError }}>
       {children}
     </AuthContext.Provider>
   );
